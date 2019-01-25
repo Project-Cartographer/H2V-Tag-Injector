@@ -19,6 +19,8 @@ Hope to see you in-game :)
 * [Himanshu-01](https://github.com/Himanshu-01) for creating this project to begin with.
 * [num0005](https://github.com/num0005) for overhauling some aspects of the original project.
 
+Please do not bother the people in this list with how to use this as the program is in a proof of concept stage and is not intended to actually be used by the average user.
+
 ## License ##
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3 as published by
