@@ -3,9 +3,9 @@
 
 enum ProcessType
 {
-	H2Game,
+	Halo2,
 	H2Server,
-	Invalid
+	H2Tool,
 };
 
 struct ObjectSpawnData

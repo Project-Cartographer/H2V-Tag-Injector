@@ -5,6 +5,7 @@
 
 #pragma once
 
+
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
@@ -12,23 +13,19 @@
 
 #pragma region WindowsSdks
 
-#pragma warning( push )
-#pragma warning(disable:4005) 
 #include <Windows.h>
-#include <io.h>
-#include <string>
-#include <tchar.h>
-#pragma warning( pop )
-
-#pragma endregion
-
-#include <stdio.h>
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <io.h>
+#include <string>
+#include <stdio.h>
 #include <list>
 #include <fstream>
 #include <stdarg.h>
+#include <tchar.h>
+
+#pragma endregion
 
 #include "h2codez.h"
 #include "Detours/detours.h"

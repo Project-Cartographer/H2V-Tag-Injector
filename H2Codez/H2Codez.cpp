@@ -1,45 +1,14 @@
 #include "stdafx.h"
 
+#define PI 3.14159265
+#define degreesToRadians(angleDegrees) (angleDegrees * PI / 180.0)
+#define radiansToDegrees(angleRadians) (angleRadians * 180.0 / PI)
+
 
 
 #pragma region H2Functions
 
 #pragma region Halo
-
-ProcessType detect_process_type()
-{
-	// try and detect type based on module name.
-	if (GetModuleHandleW(L"h2server.exe"))
-		return ProcessType::H2Server;
-	else if (GetModuleHandleW(L"Halo2.exe"))
-		return ProcessType::H2Game;
-
-	// fallback to checking file information in case the file was renamed.
-	wchar_t exe_file_path[_MAX_PATH + 1];
-	int result = GetModuleFileNameW(NULL, exe_file_path, ARRAYSIZE(exe_file_path));
-	if (0 < result <= _MAX_PATH) {
-		DWORD version_info_size = GetFileVersionInfoSizeW(exe_file_path, NULL);
-		if (version_info_size != 0) {
-
-			void *version_info = new BYTE[version_info_size];
-			if (GetFileVersionInfoW(exe_file_path, NULL, version_info_size, version_info)) {
-				wchar_t *orginal_filename;
-				size_t filename_len;
-				// shouldn't be hardcoded but who cares
-				VerQueryValueW(version_info, L"\\StringFileInfo\\040904b0\\OriginalFilename", (LPVOID*)&orginal_filename, &filename_len);
-
-				std::wstring exe_orginal_filename = orginal_filename;
-				delete[] version_info;
-
-				if (exe_orginal_filename == L"h2server.exe")
-					return ProcessType::H2Server;
-				else if (exe_orginal_filename == L"Halo2.exe")
-					return ProcessType::H2Game;
-			}
-		}
-	}
-	return ProcessType::Invalid;
-}
 
 void H2class::Start()
 {
@@ -48,16 +17,22 @@ void H2class::Start()
 		Dbg.Start_Console();
 	pLog.WriteLog("\n*** H2 Codez***\nBETA v1.5\n :) \n");
 
-	game.g_base = GetModuleHandle(NULL);
-	this->H2Type = detect_process_type();
-	
-	if (H2Type == ProcessType::Invalid)
+	if (GetModuleHandleW(L"halo2.exe"))
 	{
-		MessageBoxA(NULL, "Loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
-		TerminateProcess(GetCurrentProcess(), 1);
-	}
+		game.g_base=GetModuleHandleW(L"halo2.exe");		
+		this->H2Type = ProcessType::Halo2;
+		pLog.WriteLog("Injected to : Halo 2");
 
-	pLog.WriteLog("Process type: %s", H2Type == ProcessType::H2Game ? "Game" : "Server");
+	}
+	else if (GetModuleHandleW(L"h2server.exe"))
+	{
+
+		game.g_base=GetModuleHandleW(L"h2server.exe");
+		this->H2Type=ProcessType::H2Server;	
+		pLog.WriteLog("Injected to : H2Server ");		
+
+	}	
+	
 
 	pLog.WriteLog("Base Address : 0x%X",game.GetBase());
 	
@@ -152,7 +127,9 @@ DWORD H2class::SpawnObjAtCamera(int datumindex)
 
 
 	float* nObject = new float[0xC4];
+	DWORD dwBack;
 
+	VirtualProtect(nObject, 0xC4, PAGE_EXECUTE_READWRITE, &dwBack);
 	game.call_object_placement_data_new(nObject, datumindex, -1, 0);
 
 	nObject[7] = *(float*)(((char*)game.GetBase()) + 0x4A8504); //x
@@ -165,7 +142,7 @@ DWORD H2class::SpawnObjAtCamera(int datumindex)
 
 
 
-	delete[] nObject;
+	delete[0xC4]nObject;
 
 	return mydatum;
 

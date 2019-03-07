@@ -25,12 +25,12 @@ void read_directory(const std::string& name, std::vector<std::string>& v)
 {
 	std::string pattern(name);
 	pattern.append("\\*");
-	WIN32_FIND_DATAA data;
+	WIN32_FIND_DATA data;
 	HANDLE hFind;
-	if ((hFind = FindFirstFileA(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
+	if ((hFind = FindFirstFile(string_to_w_char(pattern), &data)) != INVALID_HANDLE_VALUE) {
 		do {
 			v.push_back(Wchar_to_string(data.cFileName));
-		} while (FindNextFileA(hFind, &data) != 0);
+		} while (FindNextFile(hFind, &data) != 0);
 		FindClose(hFind);
 	}
 }

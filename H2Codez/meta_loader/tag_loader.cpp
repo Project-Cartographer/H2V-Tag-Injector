@@ -886,10 +886,10 @@ void Initialise_tag_loader()
 
 	char path[_MAX_PATH];
 	//get default maps full path
-	GetModuleFileNameA(GetModuleHandleA(NULL), path, sizeof(path));
+	GetModuleFileNameA(GetModuleHandle(NULL), path, sizeof(path));
 	string def_maps_loc = meta_struct::Get_file_directory(path) + "\\maps";
 	//get dll directory
-	GetModuleFileNameA(GetModuleHandleA("H2Codez.dll"), path, sizeof(path));
+	GetModuleFileName(GetModuleHandle(_T("H2Codez.dll")), path, sizeof(path));
 	tag_loader::dll_dir = meta_struct::Get_file_directory((path));
 
 	tag_loader::Set_directories(def_maps_loc, "", tag_loader::dll_dir + "\\tags", tag_loader::dll_dir + "\\plugins");

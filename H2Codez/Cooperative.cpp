@@ -244,7 +244,7 @@ signed int Test()
 }
 void CoopAssignPointers()
 {
-	if (halo.H2Type == H2Game)
+	if (halo.H2Type == Halo2)
 	{
 		int GameGlobals = (int)*(int*)((char*)game.GetBase() + 0x482D3C);
 		int GameTimeGlobals = (int)*(int*)((char*)game.GetBase() + 0x4C06E4);
@@ -303,7 +303,7 @@ void CooperativeHook()
 
 
 	DetourAttach(&(PVOID&)pGameSet, h_GameEngineSet);
-	if (halo.H2Type == H2Game)
+	if (halo.H2Type == Halo2)
 	{
 		//DetourAttach(&(PVOID&)pSpawn, h_SpawnPlayer);
 	}

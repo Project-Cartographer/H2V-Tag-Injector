@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tag_injector", "tag_injector\tag_injector.vcxproj", "{F0CF7B03-055F-4A48-938D-582CE22D1F27}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "H2Codez", "H2Codez\H2Codez.vcxproj", "{F0CF7B03-055F-4A48-938D-582CE22D1F27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
