@@ -57,7 +57,7 @@ namespace tag_loader
 	static map<string, shared_ptr<plugins_field>> plugins_list;//contains list of various plugin structures
 	map<int, shared_ptr<meta>> que_meta_list;//<datum_index,meta_junk>contains the list of tags that are currently in que to loaded in memory
 	map<int, shared_ptr<meta>> meta_list;//<datum_index,meta_junk>contains the the list of tags that are currently loaded in memory
-	vector<string> error_list;//contains various error messages generated during various processes
+	vector<string> error_list;//contains various messages generated during various processes,shouldnt had named it error list
 
 	unsigned int tag_count = 0x0;//unitialised
 	unsigned int def_meta_size = 0x0;//uninitialised
@@ -83,7 +83,7 @@ namespace tag_loader
 		string plugin_loc = plugins_dir + '\\' + type + ".xml";
 		shared_ptr<plugins_field> temp_plugin = meta_struct::Get_Tag_stucture_from_plugin(plugin_loc);
 
-		if (temp_plugin)
+		if (temp_plugin)		
 			plugins_list.emplace(type, temp_plugin);
 		else
 		{
@@ -553,6 +553,8 @@ namespace tag_loader
 		}
 		return ret;
 	}
+	/*
+	*isnt complete yet
 	//Generates a StringId List combining all the default maps
 	void Dump_StringID_list()
 	{
@@ -575,7 +577,7 @@ namespace tag_loader
 
 		test.clear();
 
-	}
+	}	
 	//Generates a StringId List for a specific map and adds it to the list
 	void Dump_StringID_list(string map_loc)
 	{
@@ -584,10 +586,21 @@ namespace tag_loader
 		cache_BLOCK* strings_block = my_cache_loader.get_BLOCK("strings");
 
 	}
+	*/
 	//function to load RAW_DATA of the concerned tag from meta_list
 	//Carefull the tag should be loaded in the meta_tables and meta,this function just fixes its RAW_DATA
 	void Load_RAW_refs(int datum_index,string map_loc)
 	{
+		DWORD* PMapRawtableoffset = (DWORD*)(game.GetBase() + 0x4AE8B0);
+		DWORD* PRawTableSize = (DWORD*)(game.GetBase() + 0x4AE8B4);
+
+		//a little  precaution to circumvent unexpected behaviour
+		DWORD oldRtable_offset = *PMapRawtableoffset;
+		DWORD oldRtable_size = *PRawTableSize;
+
+		*PMapRawtableoffset = 0x0;
+		*PRawTableSize = 0x0;
+
 		DWORD SharedmapBase = *(DWORD*)(game.GetBase() + 0x47CD64);
 		DWORD ETCOFFSET = *(DWORD*)(game.GetBase() + 0x482290);
 		HANDLE old_file_handle = *(HANDLE*)(game.GetBase() + 0x4AE8A8);
@@ -670,6 +683,9 @@ namespace tag_loader
 		}
 		*(HANDLE*)(game.GetBase() + 0x4AE8A8) = old_file_handle;
 		CloseHandle(new_file_handle);
+
+		*PMapRawtableoffset = oldRtable_offset;
+		*PRawTableSize = oldRtable_size;
 	}
 	//Fixes the reference of the tags to their global objects(vftables)
 	void Fix_global_objects_ref(int datum_index)
@@ -784,7 +800,8 @@ namespace tag_loader
 				Load_RAW_refs(*(int*)&t_ptr[i * 0x10 + 0x4], m_ptr);
 				Fix_global_objects_ref(*(int*)&t_ptr[i * 0x10 + 0x4]);
 
-				m_ptr += strlen(m_ptr) + 1;
+				//as the tags are from the same map
+				//m_ptr += strlen(m_ptr) + 1;
 				ext_meta_size += module_tags[i]->Get_Total_size();
 			}
 		}
@@ -829,6 +846,16 @@ namespace tag_loader
 			}
 		}
 	}
+	void Add_all_shared_refs()
+	{
+		DWORD SharedMemBase = *(DWORD*)(game.GetBase() + 0x47CD54);
+		DWORD SharedTables = SharedMemBase + 0x20 + 0xC * *(DWORD*)(SharedMemBase + 4);
+		DWORD Tag_count = *(DWORD*)(*(DWORD*)(game.GetBase() + 0x47D568) + 0x18);
+		DWORD TagTableStart = *(DWORD*)(game.GetBase() + 0x47CD50);
+
+		for (int i = 0x2710; i < Tag_count; i++)
+			memcpy((void*)(TagTableStart + i * 0x10), (void*)(SharedTables + i * 0x10), 0x10);
+	}
 }
 //Used to allocate somemore space for tagtables and tags
 unsigned int __cdecl AllocateMemory(int old_size, char arg_4)
@@ -850,6 +877,9 @@ char _cdecl LoadTagsandMapBases(int a)
 	LoadTagsandSetMapBases pLoadTagsandSetMapBases;
 	pLoadTagsandSetMapBases = (LoadTagsandSetMapBases)((char*)game.GetBase() + 0x31348);
 	char result = pLoadTagsandSetMapBases(a);
+
+	//adding all shared references
+	tag_loader::Add_all_shared_refs();
 
 	DWORD *TagTableStart = (DWORD*)(game.GetBase() + 0x47CD50);
 	//TABLE EXTENSION  STUFF
@@ -886,10 +916,10 @@ void Initialise_tag_loader()
 
 	char path[_MAX_PATH];
 	//get default maps full path
-	GetModuleFileNameA(GetModuleHandleA(NULL), path, sizeof(path));
+	GetModuleFileNameA(GetModuleHandle(NULL), path, sizeof(path));
 	string def_maps_loc = meta_struct::Get_file_directory(path) + "\\maps";
 	//get dll directory
-	GetModuleFileNameA(GetModuleHandleA("H2Codez.dll"), path, sizeof(path));
+	GetModuleFileName(GetModuleHandle(_T("H2Codez.dll")), path, sizeof(path));
 	tag_loader::dll_dir = meta_struct::Get_file_directory((path));
 
 	tag_loader::Set_directories(def_maps_loc, "", tag_loader::dll_dir + "\\tags", tag_loader::dll_dir + "\\plugins");
