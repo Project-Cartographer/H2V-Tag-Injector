@@ -210,6 +210,12 @@ namespace meta_struct
 		this->map_loc = loc;
 		this->type = type;
 
+		//this meta isnt loaded into in game tag_memory block
+		NO_DELETE = false;
+
+		if (!size)
+			return;
+
 		if (count > 0)
 			this->entry_size = size / count;
 		else
@@ -224,8 +230,6 @@ namespace meta_struct
 			for (int i = 0; i < count; i++)
 				List_deps(entry_size*i, plugin);
 
-		//this meta isnt loaded into in game tag_memory block
-		NO_DELETE = false;
 	}
 	//a constructor to utilise tag loade into memory and to modify them
 	//currently for rebasing and reassigning datum indices
@@ -241,6 +245,11 @@ namespace meta_struct
 		this->map_loc = -1;
 		this->type = "";
 
+		NO_DELETE = true;
+
+		if (!size)
+			return;
+
 		if (count > 0)
 			this->entry_size = size / count;
 		else
@@ -254,8 +263,6 @@ namespace meta_struct
 		if (plugin != nullptr)
 			for (int i = 0; i < count; i++)
 				List_deps(entry_size*i, plugin);
-
-		NO_DELETE = true;
 	}
 	//function that lists various dependencies of the meta
 	void meta::List_deps(int off, shared_ptr<plugins_field> fields)
